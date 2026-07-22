@@ -21,8 +21,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    /* Chemins pour Shadcn (Ajoute ces deux lignes !) */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

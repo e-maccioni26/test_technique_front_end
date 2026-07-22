@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, ArrowUpDown } from 'lucide-react';
+import { SORT_OPTIONS, SortOption } from '@/lib/alertSort';
 
 interface AlertFiltersProps {
   searchQuery: string;
@@ -9,6 +10,8 @@ interface AlertFiltersProps {
   setSelectedSeverity: (severity: string) => void;
   selectedStatus: string;
   setSelectedStatus: (status: string) => void;
+  sortBy: SortOption;
+  setSortBy: (sort: SortOption) => void;
 }
 
 export const AlertFilters = ({
@@ -18,6 +21,8 @@ export const AlertFilters = ({
   setSelectedSeverity,
   selectedStatus,
   setSelectedStatus,
+  sortBy,
+  setSortBy,
 }: AlertFiltersProps) => {
   const severities = ['all', 'critical', 'high', 'medium', 'low'];
   const statuses = ['all', 'active', 'banned', 'ignored'];
@@ -62,6 +67,21 @@ export const AlertFilters = ({
             {st === 'all' ? 'Tous' : st}
           </Button>
         ))}
+      </div>
+
+      <div className="relative w-full md:w-56">
+        <ArrowUpDown className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as SortOption)}
+          className="w-full h-9 pl-9 pr-3 rounded-md border border-input bg-background text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 appearance-none"
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );

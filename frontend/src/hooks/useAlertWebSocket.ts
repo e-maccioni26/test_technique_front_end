@@ -1,7 +1,13 @@
 import { useEffect } from 'react';
-import useWebSocket from 'react-use-websocket';
+import useWebSocketImport from 'react-use-websocket';
 import { toast } from 'sonner';
 import { useAlertStore, Alert } from '../store/useAlertStore';
+
+const useWebSocket = (
+  typeof useWebSocketImport === 'function'
+    ? useWebSocketImport
+    : (useWebSocketImport as unknown as { default: typeof useWebSocketImport }).default
+) as typeof useWebSocketImport;
 
 const WS_URL = 'ws://localhost:8000/ws/alerts';
 
@@ -22,7 +28,7 @@ export const useAlertWebSocket = () => {
     if (!lastJsonMessage) return;
 
     if (lastJsonMessage.type === 'error') {
-      // Échec simulé (4xx/5xx)sans polluer le flux d'alertes ni casser la connexion WebSocket.
+      // Échec simulé (4xx/5xx) sans polluer le flux d'alertes ni casser la connexion WebSocket.
       toast.error(`Erreur ${lastJsonMessage.status_code} — ${lastJsonMessage.message}`);
       return;
     }

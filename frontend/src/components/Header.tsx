@@ -1,5 +1,6 @@
 import { useAlertStore } from '@/store/useAlertStore';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Pause, Play, ShieldAlert } from 'lucide-react';
 import { ReadyState } from 'react-use-websocket';
 
@@ -52,6 +53,8 @@ export const Header = ({ readyState }: HeaderProps) => {
             </>
           )}
         </Button>
+
+        <ThemeToggle />
       </div>
     </header>
   );

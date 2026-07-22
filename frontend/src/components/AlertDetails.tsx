@@ -57,7 +57,7 @@ export const AlertDetails = ({ alert, onClose }: AlertDetailsProps) => {
         </SheetHeader>
 
         {alert && (
-          <div className="py-6 space-y-6">
+          <div className="px-4 py-6 space-y-6">
             <div className="space-y-3 bg-muted/40 p-4 rounded-lg border border-border">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Type de Menace</span>

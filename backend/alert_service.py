@@ -9,11 +9,9 @@ SEVERITIES = ["low", "medium", "high", "critical"]
 
 def generate_alert() -> Alert:
     return Alert(
-        id=str(uuid.uuid4()),
         ip=random.choice(MOCK_IPS),
         timestamp=datetime.now(timezone.utc),
         severity=random.choice(SEVERITIES),
         threat_type=random.choice(THREATS),
-        status="active",
-        is_read=False
+        status="active"
     )

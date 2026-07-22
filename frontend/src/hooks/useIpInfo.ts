@@ -6,7 +6,7 @@ export interface IpInfoResponse {
   region?: string;
   country?: string;
   loc?: string;
-  org?: string; // ISP / Hébergeur
+  org?: string; 
   timezone?: string;
 }
 

@@ -22,7 +22,6 @@ export const useAlertStore = create<AlertStore>((set) => ({
   alerts: [],
   isLive: true,
   
-  
   addAlert: (alert) => 
     set((state) => {
       if (!state.isLive) return state;

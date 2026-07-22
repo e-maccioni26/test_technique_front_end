@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
-import useWebSocket from 'react-use-websocket';
+import reactUseWebSocket from 'react-use-websocket';
 import { useAlertStore, Alert } from '../store/useAlertStore';
+
+const useWebSocket = typeof reactUseWebSocket === 'function' 
+  ? reactUseWebSocket 
+  : (reactUseWebSocket as any).default;
 
 const WS_URL = 'ws://localhost:8000/ws/alerts';
 

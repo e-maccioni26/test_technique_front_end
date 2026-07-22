@@ -1,122 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useMemo } from 'react';
+import { useAlertStore, Alert } from '@/store/useAlertStore';
+import { useAlertWebSocket } from '@/hooks/useAlertWebSocket';
+import { Header } from '@/components/Header';
+import { AlertFilters } from '@/components/AlertFilters';
+import { AlertList } from '@/components/AlertList';
+import { AlertDetails } from '@/components/AlertDetails';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const { readyState } = useAlertWebSocket();
+  const alerts = useAlertStore((state) => state.alerts);
+
+  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSeverity, setSelectedSeverity] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
+  const filteredAlerts = useMemo(() => {
+    return alerts.filter((alert) => {
+      const matchSearch =
+        alert.ip.includes(searchQuery) ||
+        alert.threat_type.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchSeverity =
+        selectedSeverity === 'all' || alert.severity === selectedSeverity;
+
+      const matchStatus =
+        selectedStatus === 'all' || alert.status === selectedStatus;
+
+      return matchSearch && matchSeverity && matchStatus;
+    });
+  }, [alerts, searchQuery, selectedSeverity, selectedStatus]);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans antialiased">
+      <Header readyState={readyState} />
 
-      <div className="ticks"></div>
+      <main className="flex-1 p-6 w-full max-w-screen-2xl mx-auto">
+        <AlertFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedSeverity={selectedSeverity}
+          setSelectedSeverity={setSelectedSeverity}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <AlertList
+          alerts={filteredAlerts}
+          onSelectAlert={setSelectedAlert}
+        />
+      </main>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <AlertDetails
+        alert={selectedAlert}
+        onClose={() => setSelectedAlert(null)}
+      />
+    </div>
+  );
 }
-
-export default App

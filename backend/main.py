@@ -4,7 +4,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 
-from alert_service import generate_alert
+from alert_service import generate_alert, generate_alert_or_error
 from models import AlertAction
 
 logging.basicConfig(level=logging.INFO)
@@ -29,8 +29,8 @@ async def websocket_endpoint(websocket: WebSocket):
     active_connections.append(websocket)
     
     initial_alert = generate_alert()
-    await websocket.send_json(jsonable_encoder(initial_alert))
-    
+    await websocket.send_json({"type": "alert", "payload": jsonable_encoder(initial_alert)})
+ 
     try:
         while True:
             await websocket.receive_text()
@@ -38,16 +38,21 @@ async def websocket_endpoint(websocket: WebSocket):
         if websocket in active_connections:
             active_connections.remove(websocket)
 
+
 # Tâche de fond pour émettre les alertes toutes les 15 secondes
 async def broadcast_alerts():
     while True:
-        await asyncio.sleep(4)
+        await asyncio.sleep(15)
         if not active_connections:
             continue
             
-        new_alert = generate_alert()
-        payload = jsonable_encoder(new_alert)
-        
+        result = generate_alert_or_error()
+        if result["type"] == "alert":
+            payload = {"type": "alert", "payload": jsonable_encoder(result["payload"])}
+        else:
+            payload = {"type": "error", "status_code": result["status_code"], "message": result["message"]}
+            logger.warning(f"Simulated ingestion failure: {result['status_code']} - {result['message']}")
+ 
         for connection in active_connections.copy():
             try:
                 await connection.send_json(payload)
@@ -59,7 +64,7 @@ async def broadcast_alerts():
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(broadcast_alerts())
-
+ 
 @app.post("/api/alerts/{alert_id}/action")
 async def handle_alert_action(alert_id: str, action_data: AlertAction):
     await asyncio.sleep(0.5)

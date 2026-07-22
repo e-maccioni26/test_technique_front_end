@@ -128,3 +128,22 @@
     @apply font-sans;
     }
 }
+
+@keyframes alert-row-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+    background-color: var(--row-glow, transparent);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+ 
+.alert-row-new {
+  animation: alert-row-enter 1.3s ease-out;
+}

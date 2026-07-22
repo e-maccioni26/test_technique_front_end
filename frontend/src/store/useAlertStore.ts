@@ -9,10 +9,12 @@ export interface Alert {
   status: 'active' | 'banned' | 'ignored';
   is_read: boolean;
 }
+const NEW_ALERT_HIGHLIGHT_MS = 1400;
 
 interface AlertStore {
   alerts: Alert[];
-  isLive: boolean; 
+  isLive: boolean;
+  recentlyArrivedIds: Set<string>;
   addAlert: (alert: Alert) => void;
   updateAlertStatus: (id: string, status: Alert['status']) => void;
   toggleLive: () => void;
@@ -21,11 +23,26 @@ interface AlertStore {
 export const useAlertStore = create<AlertStore>((set) => ({
   alerts: [],
   isLive: true,
-  
+  recentlyArrivedIds: new Set(),
+
   addAlert: (alert) => 
     set((state) => {
       if (!state.isLive) return state;
-      return { alerts: [alert, ...state.alerts] };
+      if (state.alerts.some((a) => a.id === alert.id)) return state;
+
+      setTimeout(() => {
+        set((s) => {
+          if (!s.recentlyArrivedIds.has(alert.id)) return s;
+          const next = new Set(s.recentlyArrivedIds);
+          next.delete(alert.id);
+          return { recentlyArrivedIds: next };
+        });
+      }, NEW_ALERT_HIGHLIGHT_MS);
+
+      const recentlyArrivedIds = new Set(state.recentlyArrivedIds);
+      recentlyArrivedIds.add(alert.id);
+
+      return { alerts: [alert, ...state.alerts], recentlyArrivedIds };
     }),
     
   updateAlertStatus: (id, status) => 
